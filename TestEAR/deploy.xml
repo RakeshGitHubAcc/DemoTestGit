@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Deployment" default="install"
+basedir=".">
+<!-- global properties -->
+<property name="hostName" value="10.245.231.23" />
+<property name="connType" value="SOAP" />
+<property name="port" value="8880" />
+<property name="userId" value="" />
+<property name="password" value="" />
+<property name="deployEar.dir" value="TestEAR/dist" />
+<property name="deployEar" value="TestEAR.ear" />
+<property name="earName" value="TestEAR" />
+<property name="nodeName" value="PC309395Node01" />
+<property name="wasHome.dir" value="D:/IBM/SDP/runtimes/base_v7" />
+<!-- mbean declaration" -->
+<taskdef name="wsStopApp" classname="com.ibm.websphere.ant.tasks.StopApplication" />
+<taskdef name="wsUninstallApp" classname="com.ibm.websphere.ant.tasks.UninstallApplication" />
+<taskdef name="wsInstallApp" classname="com.ibm.websphere.ant.tasks.InstallApplication" />
+<taskdef name="wsStartApp" classname="com.ibm.websphere.ant.tasks.StartApplication" />
+<!-- installation Target-->
+<target name="installEar">
+<echo message="Deployable EAR File found at: ${deployEar.
+dir}/${deployEar}" />
+
+<wsStopApp 
+	server="server1" 
+	node="${nodeName}" 
+	application="${earName}" 
+	wasHome="${wasHome.dir}"
+	conntype="${connType}" 
+	port="${port}"
+	host="${hostName}" 
+	user="${userId}"
+	password="${password}" /> 
+
+<wsUninstallApp  
+	application="${earName}"
+	wasHome="${wasHome.dir}"
+	conntype="${connType}" 
+	port="${port}"
+	host="${hostName}" 
+	user="${userId}"
+	password="${password}" 
+	profileName="AppSrv01"  
+	options="-usedefaultbindings"/>
+
+<wsInstallApp ear="${deployEar.dir}/${deployEar}"
+	wasHome="${wasHome.dir}"
+	conntype="${connType}"
+	port="${port}"
+	host="${hostName}"
+	user="${userId}"
+	password="${password}" 
+	profileName="AppSrv01" 
+	options="-usedefaultbindings"/>
+<wsStartApp 
+	server="server1" 
+	node="${nodeName}" 
+	application="${earName}" 
+	wasHome="${wasHome.dir}"
+	conntype="${connType}" 
+	port="${port}"
+	host="${hostName}" 
+	user="${userId}"
+	password="${password}" /> 
+</target>
+<target name="install" depends="installEar">
+<!--Main Target-->
+</target>
+</project>

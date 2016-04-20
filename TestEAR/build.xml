@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="Test" default="dist" basedir=".">
+	
+	<description>
+		Test
+	</description>
+	
+	<!-- set global properties for this build -->
+	<property name="dist.dir" value="dist"/> 
+	<property name="build.dir" value="build"/> 
+	<property name="websphere.runtime" value="D:/IBM/SDP/runtimes/base_v7"/> 
+	<property name="websphere.jdk" value="D:/IBM/SDP/jdk"/> 
+	<property name="projects.root.dir" value="D:/Go_CD_installation/Agent_installation/Go Agent/pipelines/DemoTestGit"/> 
+	<property name="ear.proj.name" value="TestEAR"/> 
+	<property name="web.proj.name" value="Test"/> 
+	<property name="web.proj.webcontent.dir" value="${projects.root.dir}/${web.proj.name}/WebContent"/> 
+	<property name="web.proj.webinf.dir" value="${web.proj.webcontent.dir}/WEB-INF"/> 
+	<property name="web.proj.src.dir" value="${projects.root.dir}/${web.proj.name}/src"/> 
+	
+	<!--  Set File and Directory name -->
+	<property file="${build.properties}" />
+	<property name="bin.dir" location="${basedir}/bin" />
+	<property name="lib.dir" location="${web.proj.webcontent.dir}/WEB-INF/lib" />
+	<property name="javasource.dir" location="${web.proj.src.dir}" />
+	
+	<path id="compile.classpath">
+		<fileset dir="${lib.dir}">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	
+	<path id="websphere.runtime.classpath">
+		<fileset dir="${websphere.runtime}/lib">
+			<include name="j2ee.jar"/>
+		</fileset>
+		<fileset dir="${websphere.runtime}/runtimes">
+			<include name="com.ibm.jaxws.thinclient_7.0.0.jar"/>
+		</fileset>
+		<fileset dir="${websphere.jdk}/jre/lib">
+			<include name="**/*.jar"/>
+		</fileset>
+	</path>
+	
+	<target name="WebCompile" depends="clean" description="Web">
+		<mkdir dir="${build.dir}/Classes" />
+		<mkdir dir="${dist.dir}" />
+		<copy todir="${build.dir}/Classes">
+			<fileset dir="${javasource.dir}" />
+		</copy>
+		<javac debug="true" debuglevel="lines, source" srcdir="${javasource.dir}" destdir="${build.dir}/Classes" includeantruntime="false">
+			<classpath refid="compile.classpath" />
+			<classpath refid="websphere.runtime.classpath" />
+		</javac>
+	</target>
+	
+	<target name="WebWAR" depends="WebCompile">
+	<echo>Building the Web.war file ... </echo>
+		<war destfile="${dist.dir}/${web.proj.name}.war"
+			webxml="${web.proj.webinf.dir}/web.xml"
+			manifest="${web.proj.webcontent.dir}/META-INF/MANIFEST.MF">
+			
+			<fileset dir="${web.proj.webcontent.dir}">
+				<include name="css/**"/>
+			</fileset>
+			<fileset dir="${web.proj.webcontent.dir}">
+				<include name="images/**"/>
+			</fileset>
+			<fileset dir="${web.proj.webcontent.dir}">
+				<include name="js/**"/>
+			</fileset>
+			<fileset dir="${web.proj.webcontent.dir}">
+				<include name="index.jsp"/>
+			</fileset>
+			<classes dir="${build.dir}/Classes" />
+			<webinf dir="${web.proj.webinf.dir}"
+				includes="*.xml,*.xmi" />
+			<webinf dir="${web.proj.webinf.dir}" 
+				includes="/configs/**/*.xml">
+			</webinf>
+			<webinf dir="${web.proj.webinf.dir}" 
+				includes="/tlds/**/*.tld">
+			</webinf>
+			<webinf dir="${web.proj.webinf.dir}" 
+				includes="/properties/**/*.properties">
+			</webinf>
+			<webinf dir="${web.proj.webinf.dir}" 
+				includes="/wsdl/**/*.wsdl">
+			</webinf>
+			<webinf dir="${web.proj.webinf.dir}" 
+				includes="/jsps/**/*.jsp">
+			</webinf>
+			<fileset dir="${dist.dir}" includes="*.war" />
+			<lib dir="${web.proj.webinf.dir}/lib" /> 
+		</war>
+	</target>
+	
+	<target name="WebEAR" depends="WebWAR">
+		<echo>Building the WebEAR.ear file ... </echo>
+		<echo>D:/softwares/CodeQualityTools/sonarcube/TestEAR/META-INF/ibm-application-bnd.xml</echo>
+		<ear destfile="${dist.dir}/${ear.proj.name}.ear"
+			appxml="${projects.root.dir}/${ear.proj.name}/META-INF/application.xml"
+			manifest="${web.proj.webcontent.dir}/META-INF/MANIFEST.MF">
+			<fileset dir="${dist.dir}" includes="*.war" />
+		</ear>
+	</target>
+	
+	<target name="clean" description="Delete the contents of build and dist and start a clean build.">
+		<delete dir="${build.dir}" />
+		<delete dir="${dist.dir}" />
+	</target>
+	
+	<target name="dist" description="Preparing EAR... " depends="clean, WebCompile, WebWAR, WebEAR">
+	</target>
+
+</project>
