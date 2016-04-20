@@ -47,7 +47,7 @@
 		<copy todir="${build.dir}/Classes">
 			<fileset dir="${javasource.dir}" />
 		</copy>
-		<javac debug="true" debuglevel="lines, source" srcdir="${javasource.dir}" destdir="${build.dir}/Classes" includeantruntime="false">
+		<javac debug="true" debuglevel="lines,source" srcdir="${javasource.dir}" destdir="${build.dir}/Classes" includeantruntime="false">
 			<classpath refid="compile.classpath" />
 			<classpath refid="websphere.runtime.classpath" />
 		</javac>
